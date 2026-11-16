@@ -267,6 +267,8 @@ a { color: inherit; }
   color: var(--niebla); font-size: .9rem;
 }
 .pie__legal { margin-left: auto; }
+.pie a { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--linea); }
+.pie a:hover { color: var(--hueso); text-decoration-color: currentColor; }
 
 /* WhatsApp flotante */
 .wa-flotante {
