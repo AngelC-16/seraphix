@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Página no encontrada · Seraphix</title>
+  <meta name="description" content="Esta página no existe. Vuelve al inicio de Seraphix o escríbenos por WhatsApp.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/fuentes.css">
+  <link rel="stylesheet" href="/estilos.css">
+  <style>
+    .no-encontrada {
+      min-height: 100dvh; display: grid; place-items: center; text-align: center;
+      padding: 48px var(--gutter);
+      background: radial-gradient(60% 45% at 50% 0%, rgb(212 166 74 / .14), transparent 70%);
+    }
+    .no-encontrada__logo { display: inline-block; margin-bottom: 56px; }
+    .no-encontrada__codigo { font: 700 .8rem/1 var(--f-texto); letter-spacing: .22em; color: var(--oro); margin-bottom: 16px; }
+    .no-encontrada h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); max-width: 18ch; margin: 0 auto 16px; }
+    .no-encontrada p { color: var(--niebla); max-width: 44ch; margin: 0 auto 32px; }
+    .no-encontrada__acciones { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  </style>
+</head>
+<body>
+  <main class="no-encontrada">
+    <div>
+      <a class="no-encontrada__logo" href="/"><img src="/assets/logo.svg" alt="Seraphix, volver al inicio" width="140" height="31"></a>
+      <p class="no-encontrada__codigo">ERROR 404</p>
+      <h1>Esta página no existe.</h1>
+      <p>Puede que el enlace esté mal escrito o que la página ya no esté. Desde el inicio encuentras todo.</p>
+      <div class="no-encontrada__acciones">
+        <a class="boton boton--oro" href="/">Ir al inicio</a>
+        <a class="boton boton--borde" href="https://wa.me/573209349888?text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20Seraphix" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -31,7 +31,9 @@ body {
   overflow-x: hidden;
 }
 img { max-width: 100%; height: auto; display: block; }
+/* Tracking según tamaño: más cerrado cuanto más grande es el texto (Apple, "Details of UI Typography") */
 h1, h2, h3 { font-family: var(--f-display); line-height: 1.12; margin: 0; letter-spacing: -0.015em; }
+h3 { letter-spacing: -0.005em; line-height: 1.2; }
 p { margin: 0; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--oro-claro); outline-offset: 3px; border-radius: 4px; }
@@ -59,13 +61,17 @@ a { color: inherit; }
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 48px; padding: 0 24px; border-radius: 999px;
   font: 700 0.95rem/1 var(--f-texto); text-decoration: none;
-  transition: transform .18s ease-out, background-color .18s ease-out, border-color .18s ease-out;
+  transition: transform .1s ease-out, filter .18s ease-out, background-color .18s ease-out, border-color .18s ease-out;
+  -webkit-tap-highlight-color: transparent;
 }
-.boton:hover { transform: translateY(-2px); }
-.boton:active { transform: translateY(0); }
+/* La respuesta va en el momento de presionar, no al soltar */
+.boton:active { transform: scale(0.97); }
 .boton--oro { background: var(--oro-grad); color: #1a1406; }
 .boton--borde { border: 1px solid #4a4436; color: var(--hueso); }
-.boton--borde:hover { border-color: var(--oro); }
+@media (hover: hover) {
+  .boton--oro:hover { filter: brightness(1.06); }
+  .boton--borde:hover { border-color: var(--oro); background-color: rgb(212 166 74 / .06); }
+}
 .boton--grande { min-height: 58px; padding: 0 36px; font-size: 1.05rem; }
 
 /* Cabecera */
@@ -111,8 +117,10 @@ a { color: inherit; }
 .hero__contenido { max-width: var(--ancho); margin: 0 auto; width: 100%; padding: 0 var(--gutter); }
 .hero h1 {
   font-weight: 800;
-  font-size: clamp(2.3rem, 7.2vw, 5.4rem);
-  max-width: 13ch;
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  max-width: 14ch;
   margin-bottom: 24px;
 }
 .hero__sub { max-width: 54ch; color: var(--niebla); font-size: clamp(1.05rem, 1.6vw, 1.2rem); }
@@ -127,7 +135,7 @@ a { color: inherit; }
 
 /* Secciones */
 .seccion { max-width: var(--ancho); margin: 0 auto; padding: var(--espacio) var(--gutter) 0; }
-.seccion > h2 { font-size: clamp(1.7rem, 4vw, 2.9rem); max-width: 22ch; margin-bottom: 48px; }
+.seccion > h2 { font-size: clamp(1.7rem, 3.6vw, 2.6rem); line-height: 1.08; letter-spacing: -0.025em; max-width: 22ch; margin-bottom: 48px; }
 .lanzamiento { color: var(--oro); font-weight: 700; margin: -32px 0 40px; }
 
 .lista { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; color: var(--niebla); }
@@ -145,8 +153,9 @@ a { color: inherit; }
   padding: 32px 0; border-bottom: 1px solid var(--linea);
 }
 .servicio__num {
+  /* Numeración en línea fina: el oro sólido se reserva para lo que se puede tocar */
   font: 800 clamp(2.4rem, 6vw, 4rem)/1 var(--f-display);
-  background: var(--oro-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+  color: transparent; -webkit-text-stroke: 1px var(--oro-oscuro);
 }
 .servicio h3 { font-size: clamp(1.3rem, 2.6vw, 1.75rem); margin-bottom: 8px; }
 .servicio p { color: var(--niebla); max-width: 52ch; }
@@ -167,7 +176,7 @@ a { color: inherit; }
 .caso h2 { font-size: clamp(1.6rem, 3.6vw, 2.5rem); margin-bottom: 32px; }
 .caso__pasos { margin: 0; display: grid; gap: 20px; }
 .caso__pasos div { border-left: 2px solid var(--oro); padding-left: 18px; }
-.caso__pasos dt { font: 600 .9rem var(--f-display); color: var(--oro); margin-bottom: 4px; }
+.caso__pasos dt { font: 600 .9rem var(--f-display); color: var(--hueso); margin-bottom: 4px; }
 .caso__pasos dd { margin: 0; color: var(--niebla); }
 .caso__telefono {
   margin: 0 auto; width: min(300px, 78vw);
@@ -190,7 +199,7 @@ a { color: inherit; }
 }
 .proceso b {
   display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
-  background: var(--oro-grad); color: #1a1406; font: 800 .95rem var(--f-display); margin-bottom: 16px;
+  border: 1px solid var(--oro-oscuro); color: var(--oro); font: 600 .9rem var(--f-display); margin-bottom: 16px;
 }
 .proceso h3 { font-size: 1.1rem; margin-bottom: 6px; }
 .proceso p { color: var(--niebla); font-size: .95rem; }
@@ -207,7 +216,7 @@ a { color: inherit; }
 .plan h3 { font-size: 1.2rem; margin-bottom: 18px; }
 .plan__precio { font: 800 clamp(1.8rem, 3.4vw, 2.3rem)/1.1 var(--f-display); }
 .plan__precio span { display: block; font: 500 .85rem var(--f-texto); color: var(--niebla); margin-top: 6px; }
-.plan__mes { color: var(--oro); font-weight: 700; font-size: .92rem; margin-top: 10px; }
+.plan__mes { color: var(--hueso); font-weight: 600; font-size: .92rem; margin-top: 10px; }
 .plan .lista { margin: 22px 0 28px; flex: 1; }
 .plan .boton { width: 100%; }
 .plan--destacado {
@@ -258,7 +267,7 @@ a { color: inherit; }
     var(--noche-2);
   border: 1px solid var(--linea);
 }
-.final h2 { font-size: clamp(1.8rem, 4.6vw, 3.2rem); max-width: 18ch; margin: 0 auto 18px; }
+.final h2 { font-size: clamp(1.8rem, 4.2vw, 2.8rem); line-height: 1.08; letter-spacing: -0.025em; max-width: 18ch; margin: 0 auto 18px; }
 .final p { color: var(--niebla); max-width: 48ch; margin: 0 auto 32px; }
 @media (max-width: 1160px) { .final { margin-inline: var(--gutter); } }
 
@@ -280,9 +289,11 @@ a { color: inherit; }
   display: grid; place-items: center;
   background: #25d366; color: #fff;
   box-shadow: 0 12px 30px -8px rgb(0 0 0 / .6);
-  transition: transform .18s ease-out;
+  transition: transform .1s ease-out;
+  -webkit-tap-highlight-color: transparent;
 }
-.wa-flotante:hover { transform: scale(1.06); }
+.wa-flotante:active { transform: scale(0.94); }
+@media (hover: hover) { .wa-flotante:hover { filter: brightness(1.05); } }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
