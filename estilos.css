@@ -228,6 +228,9 @@ a { color: inherit; }
   .plan--destacado { transform: translateY(-12px); }
 }
 
+.planes__nota { color: var(--niebla); font-size: .9rem; margin-top: 24px; }
+.planes__nota a { color: var(--oro); }
+
 /* Preguntas */
 .faq { display: grid; gap: 12px; max-width: 820px; }
 .faq details { background: var(--noche-2); border: 1px solid var(--linea); border-radius: 14px; padding: 0 22px; }
