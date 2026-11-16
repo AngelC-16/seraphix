@@ -62,5 +62,5 @@ window.DATOS = {
   fotoVisita: "fotos/photo-f17556889-recorte.webp",
 
   // Franja "Demo hecha por Seraphix". Para un cliente real: demo: null
-  demo: { texto: "Demo hecha por Seraphix", enlace: "https://angelc-16.github.io/seraphix/" }
+  demo: { texto: "Demo hecha por Seraphix", enlace: "https://seraphix.pages.dev/" }
 };
