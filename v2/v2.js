@@ -1,12 +1,12 @@
 /* Seraphix v2 · animaciones (sin librerías).
- * 1. Cabecera con fondo al bajar.  2. Entrada del hero.  3. Logo de partículas.
+ * 1. Cabecera con fondo al bajar.  2. Entrada del hero.  3. Revelado del logo por luz.
  * 4. Tramas de pixeles en los servicios.  5. Iconos del proceso.  6. Brillo de SERAPHIX al final.
  * Con "reducir movimiento" todo queda quieto y visible. */
 (() => {
   "use strict";
   const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const punteroFino = matchMedia("(hover: hover) and (pointer: fine)").matches;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
 
   /* 1. Cabecera */
   const cabecera = document.querySelector(".cabecera");
@@ -33,137 +33,54 @@
     document.querySelectorAll(".boton--oro").forEach((b) => { if (!wa.contains(b)) obs.observe(b); });
   })();
 
-  /* 3. Logo que se arma con partículas */
-  function particulas() {
+  /* 3. Revelado por luz: un haz enciende el logo en oro, luego pasa un brillo metálico (~3,6 s y se detiene) */
+  function revelado() {
     const marca = document.querySelector(".hero__marca");
-    const lienzo = document.getElementById("particulas");
-    const LOGO = window.SX_LOGO;
-    if (quieto || !lienzo || !LOGO || !lienzo.getContext) return;
-    const ctx = lienzo.getContext("2d");
-    let W = 0, H = 0, puntos = [], corriendo = false, visible = true, inicio = 0, lista = false, tLista = 0;
-    const raton = { x: -9999, y: -9999, ultimo: 0 };
+    if (quieto || !marca) return;
+    const oro = marca.querySelector(".hero__logo-quieto");
+    const base = marca.querySelector(".hero__logo-base");
+    const brillo = marca.querySelector(".hero__logo-brillo");
+    const haz = marca.querySelector(".hero__haz");
+    const aura = marca.querySelector(".hero__aura");
+    const clamp = (v) => Math.min(1, Math.max(0, v));
+    const seg = (t, a, b) => clamp((t - a) / (b - a));
+    const eio = (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    const eout = (x) => 1 - Math.pow(1 - x, 3);
+    const mascara = (el, m) => { el.style.webkitMaskImage = m; el.style.maskImage = m; };
+    const D = 3600;
+    let t0 = 0;
 
-    function muestrear() {
-      const r = marca.getBoundingClientRect();
-      W = Math.round(r.width); H = Math.round(r.height);
-      if (!W || !H) return [];
-      lienzo.width = W * dpr; lienzo.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const off = document.createElement("canvas");
-      off.width = W; off.height = H;
-      const o = off.getContext("2d");
-      const [vx, vy, vw] = LOGO.vb;
-      const s = W / vw;
-      o.setTransform(s, 0, 0, s, -vx * s, -vy * s);
-      const oro = o.createLinearGradient(5856, 0, 6777, -750);
-      oro.addColorStop(0, "#a8741a"); oro.addColorStop(1, "#ffe29a");
-      for (const t of LOGO.trazos) {
-        o.fillStyle = t.f.startsWith("url") ? oro : t.f;
-        o.fill(new Path2D(t.d));
-      }
-      const datos = o.getImageData(0, 0, W, H).data;
-      const paso = W > 760 ? 4 : W > 480 ? 3 : 2;
-      const lista = [];
-      for (let y = 0; y < H; y += paso) {
-        for (let x = 0; x < W; x += paso) {
-          const i = (y * W + x) * 4;
-          if (datos[i + 3] > 140) {
-            lista.push({
-              tx: x, ty: y, x: 0, y: 0,
-              c: `rgb(${datos[i]},${datos[i + 1]},${datos[i + 2]})`,
-              d: (x / W) * 0.9 + Math.random() * 0.35, // retraso: barre de izquierda a derecha
-              t: paso - (paso > 2 ? 1 : 0.6),
-            });
-          }
-        }
-      }
-      return lista;
+    function pintar(t) {
+      const lx = -20 + 140 * eio(seg(t, 150, 1950));
+      const r = 11 + 190 * eio(seg(t, 1750, 2650));
+      mascara(oro, `radial-gradient(ellipse ${r}% ${r * 3.6}% at ${lx}% 55%, #000 55%, transparent 100%)`);
+      haz.style.left = lx + "%";
+      haz.style.opacity = seg(t, 0, 300) * (1 - seg(t, 1900, 2600));
+      base.style.opacity = 1 - seg(t, 2500, 2900);
+      const k = seg(t, 2600, 3400), x = -25 + 150 * eio(k);
+      mascara(brillo, `linear-gradient(105deg, transparent ${x - 12}%, #000 ${x}%, transparent ${x + 12}%)`);
+      brillo.style.opacity = k > 0 && k < 1 ? .9 : 0;
+      aura.style.opacity = .95 * eout(seg(t, 300, 2200)) - .4 * eio(seg(t, 2400, 3500));
     }
 
-    function colocar(lista, desdeCero) {
-      for (const p of lista) {
-        if (desdeCero) {
-          // Nacen dispersas a lo largo de una estela que cruza el lienzo
-          const a = Math.random() * Math.PI * 2, rad = 40 + Math.random() * W * 0.35;
-          p.x = W * 0.5 + Math.cos(a) * rad; p.y = H * 0.5 + Math.sin(a) * rad * 0.5;
-        } else { p.x = p.tx; p.y = p.ty; }
-      }
+    function terminar() {
+      marca.classList.remove("revelando");
+      mascara(oro, ""); mascara(brillo, "");
+      for (const el of [base, brillo, haz, aura]) el.style.opacity = "";
     }
 
     function cuadro(ahora) {
-      if (!visible) { corriendo = false; return; }
-      const t = (ahora - inicio) / 1000;
-      ctx.clearRect(0, 0, W, H);
-      let quietos = 0;
-      const empujar = punteroFino && ahora - raton.ultimo < 1200;
-      for (const p of puntos) {
-        const k = Math.min(Math.max((t - p.d) / 1.1, 0), 1);
-        if (k === 0) continue;
-        let fx = p.tx, fy = p.ty;
-        if (empujar) {
-          const dx = p.x - raton.x, dy = p.y - raton.y, d2 = dx * dx + dy * dy;
-          if (d2 < 4900) { const f = (70 - Math.sqrt(d2)) / 70 * 22; const d = Math.sqrt(d2) || 1; fx += dx / d * f; fy += dy / d * f; }
-        }
-        const e = 0.06 + k * 0.12;
-        p.x += (fx - p.x) * e; p.y += (fy - p.y) * e;
-        if (Math.abs(p.x - p.tx) < 0.25 && Math.abs(p.y - p.ty) < 0.25) quietos++;
-        ctx.globalAlpha = 0.25 + k * 0.75;
-        ctx.fillStyle = p.c;
-        ctx.fillRect(p.x, p.y, p.t, p.t);
-      }
-      ctx.globalAlpha = 1;
-      if (quietos === puntos.length && !empujar) {
-        corriendo = false;
-        // Todo asentado: crossfade al logo vectorial nítido y dejar de pintar
-        lista = true; marca.classList.add("lista");
-        clearTimeout(tLista);
-        tLista = setTimeout(() => { if (lista) ctx.clearRect(0, 0, W, H); }, 450);
-        return;
-      }
+      const t = ahora - t0;
+      if (t >= D) { terminar(); return; }
+      pintar(t);
       requestAnimationFrame(cuadro);
     }
 
-    function despertar() { // vuelve a mostrar el canvas (interacción o cambio de tamaño)
-      if (!lista) return;
-      lista = false; clearTimeout(tLista); marca.classList.remove("lista");
-      for (const p of puntos) { p.x = p.tx; p.y = p.ty; }
-    }
-
-    function arrancar() {
-      if (corriendo || !visible) return;
-      corriendo = true;
-      requestAnimationFrame(cuadro);
-    }
-
-    puntos = muestrear();
-    if (!puntos.length) return;
-    colocar(puntos, true);
-    marca.classList.add("activa");
-    inicio = performance.now() + 250;
-    arrancar();
-
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) arrancar(); }).observe(marca);
-
-    if (punteroFino) {
-      hero.addEventListener("pointermove", (e) => {
-        const r = lienzo.getBoundingClientRect();
-        raton.x = e.clientX - r.left; raton.y = e.clientY - r.top; raton.ultimo = performance.now();
-        // En reposo se ve el SVG nítido; el empuje solo se reactiva al pasar sobre el logo
-        if (lista && (raton.x < 0 || raton.y < 0 || raton.x > W || raton.y > H)) return;
-        despertar();
-        arrancar();
-      });
-    }
-
-    let espera;
-    new ResizeObserver(() => {
-      clearTimeout(espera);
-      espera = setTimeout(() => {
-        const r = marca.getBoundingClientRect();
-        if (Math.round(r.width) === W) return;
-        despertar(); puntos = muestrear(); colocar(puntos, false); inicio = performance.now() - 5000; arrancar();
-      }, 150);
-    }).observe(marca);
+    marca.classList.add("revelando");
+    pintar(0);
+    requestAnimationFrame((ahora) => { t0 = ahora; requestAnimationFrame(cuadro); });
+    // Si la pestaña se oculta a mitad, no tiene sentido seguir: dejar el estado final
+    document.addEventListener("visibilitychange", () => { if (document.hidden) { t0 = -1e9; } }, { once: true });
   }
 
   /* 4. Tramas de pixeles (dither ordenado de Bayer 4x4) */
@@ -374,7 +291,7 @@
     }
   }
 
-  for (const f of [particulas, tramas, proceso, cierre]) {
+  for (const f of [revelado, tramas, proceso, cierre]) {
     try { f(); } catch (err) { console.warn("Seraphix v2:", f.name, err); }
   }
 })();

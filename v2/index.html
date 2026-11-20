@@ -45,12 +45,16 @@
   </header>
 
   <main id="contenido">
-    <!-- HERO: el logo se arma con partículas (canvas). Sin JS o con movimiento reducido se ve el logo quieto. -->
+    <!-- HERO: un haz de luz enciende el logo en oro y detrás queda un resplandor que respira (CSS + un poco de JS).
+         Sin JS o con movimiento reducido se ve el logo encendido y el resplandor quieto. -->
     <section class="hero" aria-labelledby="t-hero">
       <div class="hero__luz" aria-hidden="true"></div>
       <div class="hero__marca" aria-hidden="true">
-        <canvas id="particulas" class="hero__lienzo"></canvas>
+        <div class="hero__aura"><span class="mancha m1"></span><span class="mancha m2"></span><span class="mancha m3"></span></div>
+        <img class="hero__logo-base" src="../assets/logo.svg" alt="" width="1200" height="254">
         <img class="hero__logo-quieto" src="../assets/logo.svg" alt="" width="1200" height="254">
+        <img class="hero__logo-brillo" src="../assets/logo.svg" alt="" width="1200" height="254">
+        <span class="hero__haz"></span>
       </div>
       <div class="hero__contenido">
         <p class="eyebrow" data-entra="1">Estudio digital · Barranquilla</p>
@@ -295,7 +299,6 @@
   </a>
 
   <script src="../app.js" defer></script>
-  <script src="logo-trazos.js" defer></script>
   <script src="v2.js" defer></script>
 </body>
 </html>
