@@ -145,7 +145,35 @@ a { color: inherit; }
 }
 .servicio__visual::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   box-shadow: inset 0 0 80px rgba(0, 0, 0, .7); }
-.servicio__visual canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+/* Dibujos de líneas en oro: se trazan una vez al llegar (.dibujado); sin JS se ven completos */
+.dibujo { width: 100%; height: 100%; display: block; overflow: visible; }
+.d-trazo { fill: none; stroke: var(--oro-claro); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1 1.01; stroke-dashoffset: 1.01; transition: stroke-dashoffset 1.2s var(--suave) var(--r, 0s); }
+.d-tenue { stroke: var(--oro); opacity: .5; }
+.d-grueso { stroke: var(--hueso); stroke-width: 9; opacity: .85; }
+.d-linea { stroke-width: 3; transition-duration: 1.4s; }
+.d-oro, .d-oro circle { fill: var(--oro); }
+.d-claro { fill: var(--oro-claro); }
+.d-aparece { opacity: 0; transform: translateY(10px) scale(.92); transform-box: fill-box; transform-origin: center;
+  transition: opacity .5s ease var(--r, 0s), transform .7s var(--suave) var(--r, 0s); }
+.d-barra { transform: scaleY(0); transform-box: fill-box; transform-origin: 50% 100%; transition: transform .9s var(--suave) var(--r, 0s); }
+.d-anillo { fill: none; stroke: var(--oro-claro); stroke-width: 2; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.d-burbuja { fill: rgba(244, 239, 228, .03); stroke: var(--oro); stroke-width: 2; stroke-linejoin: round; }
+.d-burbuja--oro { fill: rgba(212, 166, 74, .14); stroke: var(--oro-claro); }
+.d-linea-txt { fill: none; stroke: var(--niebla); stroke-width: 6; stroke-linecap: round; opacity: .55; }
+.d-linea-txt--oro { stroke: var(--oro-claro); opacity: .7; }
+.d-escribe circle { transform-box: fill-box; transform-origin: center; }
+.dibujado .d-trazo, html:not(.js) .d-trazo { stroke-dashoffset: 0; }
+.dibujado .d-aparece, html:not(.js) .d-aparece { opacity: 1; transform: none; }
+.dibujado .d-barra, html:not(.js) .d-barra { transform: none; }
+.dibujado .d-luz { animation: barrido 1.6s var(--suave) 1.8s both; }
+.dibujado .d-anillo { animation: anillo 1.4s ease-out 2.2s 2 both; }
+.dibujado .d-escribe circle { animation: salta .8s ease-in-out 2s 3 both; }
+.dibujado .d-escribe circle:nth-child(2) { animation-delay: 2.15s; }
+.dibujado .d-escribe circle:nth-child(3) { animation-delay: 2.3s; }
+@keyframes barrido { from { transform: translateX(0); } to { transform: translateX(560px); } }
+@keyframes anillo { from { opacity: .8; transform: scale(1); } to { opacity: 0; transform: scale(3.2); } }
+@keyframes salta { 0%, 100% { transform: none; opacity: .55; } 40% { transform: translateY(-6px); opacity: 1; } }
 .servicio__num { display: block; font: 600 .82rem/1 var(--f-display); color: var(--oro); letter-spacing: .1em; margin-bottom: 16px; }
 .servicio h3 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
 .servicio__texto > p:not(.servicio__precio):not(.servicio__ejemplos) { margin-top: 14px; color: var(--niebla); max-width: 46ch; }
@@ -287,6 +315,8 @@ html:not(.js) .icono__relleno > * { opacity: 1; transform: none; }
     background: var(--noche-2); overflow: hidden; }
   .servicio__texto { display: contents; }
   .servicio__visual { grid-area: 1 / 1; aspect-ratio: 5 / 4; border: 0; border-radius: 0; }
+  /* El dibujo arriba y más pequeño, para que no quede debajo del título que va encima */
+  .servicio__visual .dibujo { height: 66%; margin-top: 9%; }
   .servicio__visual::before { content: ""; position: absolute; inset: 45% 0 0; z-index: 1; pointer-events: none;
     background: linear-gradient(transparent, rgba(16, 15, 13, .96)); }
   .servicio__num { grid-area: 1 / 1; align-self: start; justify-self: start; z-index: 2; margin: 16px; padding: 7px 10px;

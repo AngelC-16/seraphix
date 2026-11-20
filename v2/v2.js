@@ -1,6 +1,6 @@
 /* Seraphix v2 · animaciones (sin librerías).
  * 1. Cabecera con fondo al bajar.  2. Entrada del hero.  3. Revelado del logo por luz.
- * 4. Tramas de pixeles en los servicios.  5. Iconos del proceso.  6. Brillo de SERAPHIX al final.
+ * 4. Dibujos de líneas en los servicios.  5. Iconos del proceso.  6. Brillo de SERAPHIX al final.
  * Con "reducir movimiento" todo queda quieto y visible. */
 (() => {
   "use strict";
@@ -83,146 +83,15 @@
     document.addEventListener("visibilitychange", () => { if (document.hidden) { t0 = -1e9; } }, { once: true });
   }
 
-  /* 4. Tramas de pixeles (dither ordenado de Bayer 4x4) */
-  function tramas() {
-    const lienzos = [...document.querySelectorAll("canvas[data-trama]")];
-    if (!lienzos.length) return;
-    const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
-    const sat = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
-    const caja = (u, v, x0, y0, x1, y1, r) => {
-      const qx = Math.max(x0 + r - u, 0, u - (x1 - r)), qy = Math.max(y0 + r - v, 0, v - (y1 - r));
-      return Math.hypot(qx, qy) - r; // distancia con signo aproximada (<0 dentro)
-    };
-
-    const escenas = {
-      // Una página web dentro de un navegador, con una luz que la recorre y el botón de WhatsApp latiendo
-      web(u, v, t, a) {
-        const d = caja(u, v * a, .1, .12 * a, .9, .88 * a, .04);
-        if (d > 0.012) return 0;
-        if (d > -0.012) return 0.95;
-        const vv = v;
-        let i = 0.08;
-        if (vv < 0.22) i = 0.32;
-        if (vv < 0.22 && Math.hypot(u - .16, (vv - .17) * a) < .018) i = 0.9;
-        if (vv > .3 && vv < .37 && u > .18 && u < .62) i = 0.75;
-        if (vv > .42 && vv < .46 && u > .18 && u < .54) i = 0.45;
-        if (vv > .5 && vv < .54 && u > .18 && u < .46) i = 0.45;
-        if (vv > .62 && vv < .8 && u > .18 && u < .48) i = Math.max(i, 0.28 + 0.25 * Math.sin(u * 20 + t));
-        const lx = .62 + .16 * Math.sin(t * .7), ly = .5 + .14 * Math.cos(t * .9);
-        i += 0.55 * sat(1 - Math.hypot(u - lx, (vv - ly) * a) / .3);
-        const pul = 0.6 + 0.4 * Math.sin(t * 3);
-        if (Math.hypot(u - .78, (vv - .74) * a) < .055 + .01 * pul) i = 0.55 + 0.45 * pul;
-        return i;
-      },
-      // Barras de ventas que suben y bajan, con la línea de la ganancia encima
-      app(u, v, t, a) {
-        if (u < .1 || u > .9 || v < .12 || v > .86) return 0;
-        let i = 0.04;
-        if (Math.abs(v - .82) < .006) i = 0.6;
-        const n = 7, ancho = .8 / n, k = Math.floor((u - .1) / ancho), lu = ((u - .1) % ancho) / ancho;
-        const alto = .22 + .42 * (0.5 + 0.5 * Math.sin(t * 1.1 + k * .85));
-        if (lu > .18 && lu < .82 && v < .82 && v > .82 - alto) i = 0.3 + 0.6 * ((v - (.82 - alto)) / alto < .12 ? 1 : 0.55);
-        const curva = .3 + .1 * Math.sin(u * 7 + t * .9) + .05 * Math.sin(u * 15 - t * 1.4);
-        const dc = Math.abs(v - curva);
-        if (dc < .012) i = 1; else if (dc < .05) i = Math.max(i, 0.35 * (1 - dc / .05));
-        return i;
-      },
-      // Burbujas de chat que suben, con los tres puntos de "escribiendo"
-      bot(u, v, t, a) {
-        if (u < .08 || u > .92) return 0;
-        let i = 0.03;
-        const paso = .2, des = (t * .05) % paso;
-        for (let k = -1; k < 6; k++) {
-          const y = .14 + k * paso - des;
-          // Las burbujas aparecen disolviéndose y dejan libre la de "escribiendo"
-          const aparece = sat((.76 - (y + .12)) / .1);
-          if (aparece <= 0) continue;
-          const izq = (k + Math.floor(t * .05 / paso)) % 2 === 0;
-          const x0 = izq ? .12 : .4, x1 = izq ? .6 : .88;
-          const d = caja(u, v * a, x0, y * a, x1, (y + .12) * a, .035);
-          if (d < 0) i = (izq ? 0.32 + 0.3 * (1 - (v - y) / .12) : 0.62 + 0.3 * (1 - (v - y) / .12)) * aparece;
-          if (d < 0 && v > y + .04 && v < y + .06 && u > x0 + .05 && u < x1 - .12) i = (izq ? .75 : .2) * aparece;
-        }
-        if (v > .78 && v < .9) {
-          const ok = caja(u, v * a, .12, .79 * a, .34, .89 * a, .035) < 0;
-          if (ok) i = 0.3;
-          for (let p = 0; p < 3; p++) {
-            const s = 0.5 + 0.5 * Math.sin(t * 5 - p * .9);
-            if (Math.hypot(u - (.18 + p * .05), (v - .84) * a) < .014 + .006 * s) i = .5 + .5 * s;
-          }
-        }
-        const fade = sat(v / .12) * sat((1 - v) / .12);
-        return i * fade;
-      },
-    };
-
-    const estados = lienzos.map((c) => ({ c, ctx: c.getContext("2d"), img: null, visible: false, luz: null, escena: escenas[c.dataset.trama] }));
-    const oscuro = [168, 116, 26], claro = [255, 226, 154];
-
-    function medir(s) {
-      const r = s.c.getBoundingClientRect();
-      const celda = r.width > 520 ? 5 : 4;
-      const cols = Math.max(40, Math.round(r.width / celda)), filas = Math.max(30, Math.round(r.height / celda));
-      if (s.c.width !== cols || s.c.height !== filas) { s.c.width = cols; s.c.height = filas; s.img = s.ctx.createImageData(cols, filas); }
-    }
-
-    function pintar(s, t) {
-      if (!s.img) medir(s);
-      const { width: cols, height: filas } = s.c, px = s.img.data, a = filas / cols;
-      for (let y = 0; y < filas; y++) {
-        const v = y / filas;
-        for (let x = 0; x < cols; x++) {
-          const u = x / cols;
-          let i = s.escena(u, v, t, a);
-          if (s.luz) i += 0.35 * sat(1 - Math.hypot(u - s.luz.u, (v - s.luz.v) * a) / .22);
-          const o = (y * cols + x) * 4;
-          if (sat(i) > BAYER[(y & 3) * 4 + (x & 3)]) {
-            const m = sat(i * 1.1);
-            px[o] = oscuro[0] + (claro[0] - oscuro[0]) * m;
-            px[o + 1] = oscuro[1] + (claro[1] - oscuro[1]) * m;
-            px[o + 2] = oscuro[2] + (claro[2] - oscuro[2]) * m;
-            px[o + 3] = 255;
-          } else px[o + 3] = 0;
-        }
-      }
-      s.ctx.putImageData(s.img, 0, 0);
-    }
-
-    estados.forEach((s) => { medir(s); pintar(s, 2.4); });
-    if (quieto) return;
-
-    const vistos = new IntersectionObserver((es) => {
-      for (const e of es) { const s = estados.find((x) => x.c === e.target); s.visible = e.isIntersecting; }
-      arrancar();
-    });
-    estados.forEach((s) => vistos.observe(s.c));
-
-    if (punteroFino) {
-      estados.forEach((s) => {
-        s.c.parentElement.addEventListener("pointermove", (e) => {
-          const r = s.c.getBoundingClientRect();
-          s.luz = { u: (e.clientX - r.left) / r.width, v: (e.clientY - r.top) / r.height };
-        });
-        s.c.parentElement.addEventListener("pointerleave", () => { s.luz = null; });
-      });
-    }
-
-    let corriendo = false, anterior = 0;
-    const t0 = performance.now();
-    function cuadro(ahora) {
-      const activos = estados.filter((s) => s.visible);
-      if (!activos.length) { corriendo = false; return; }
-      if (ahora - anterior > 33) { // ~30 cuadros por segundo bastan para una trama
-        anterior = ahora;
-        const t = 2.4 + (ahora - t0) / 1000;
-        activos.forEach((s) => pintar(s, t));
-      }
-      requestAnimationFrame(cuadro);
-    }
-    function arrancar() { if (!corriendo) { corriendo = true; requestAnimationFrame(cuadro); } }
-
-    let espera;
-    addEventListener("resize", () => { clearTimeout(espera); espera = setTimeout(() => estados.forEach((s) => { medir(s); pintar(s, 2.4); }), 150); });
+  /* 4. Dibujos de los servicios: se trazan una sola vez cuando llegan a la pantalla (el resto es CSS) */
+  function dibujos() {
+    const vis = [...document.querySelectorAll(".servicio__visual")];
+    if (!vis.length) return;
+    if (quieto || !("IntersectionObserver" in window)) { vis.forEach((v) => v.classList.add("dibujado")); return; }
+    const obs = new IntersectionObserver((es) => {
+      for (const e of es) if (e.isIntersecting) { e.target.classList.add("dibujado"); obs.unobserve(e.target); }
+    }, { threshold: 0.45 });
+    vis.forEach((v) => obs.observe(v));
   }
 
   /* 5. Iconos del proceso: de puntos sueltos a su forma, uno tras otro, una vez */
@@ -291,7 +160,7 @@
     }
   }
 
-  for (const f of [revelado, tramas, proceso, cierre]) {
+  for (const f of [revelado, dibujos, proceso, cierre]) {
     try { f(); } catch (err) { console.warn("Seraphix v2:", f.name, err); }
   }
 })();
