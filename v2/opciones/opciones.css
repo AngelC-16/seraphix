@@ -23,7 +23,7 @@ body {
 .cab__eyebrow { margin: 0 0 6px; color: var(--oro); font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; }
 .cab__titulo { margin: 0 0 16px; font-family: var(--f-display); font-weight: 600; font-size: clamp(1.15rem, 4.2vw, 1.7rem); }
 
-.pestanas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 520px; margin: 0 auto; }
+.pestanas { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 520px; margin: 0 auto; }
 .pestanas button {
   min-height: 52px; border-radius: 14px; border: 1px solid var(--linea); background: var(--noche-2);
   color: var(--niebla); font-family: var(--f-display); font-weight: 600; font-size: 1.15rem; cursor: pointer;
@@ -51,6 +51,14 @@ body {
   font-family: var(--f-display); font-weight: 800; line-height: 1.08; letter-spacing: -.01em;
   font-size: clamp(1.6rem, 6.2vw, 3.4rem);
 }
+/* Opción 6: resplandor de oro que respira (solo transform, sin filtros) */
+.aura { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; }
+.mancha { position: absolute; border-radius: 50%; will-change: transform; }
+.m1 { width: 70%; aspect-ratio: 1.6; left: 8%; top: 18%; background: radial-gradient(closest-side, rgba(212, 166, 74, .42), rgba(168, 116, 26, .16) 55%, transparent); animation: deriva1 11s ease-in-out infinite alternate; }
+.m2 { width: 55%; aspect-ratio: 1.4; right: 4%; top: 30%; background: radial-gradient(closest-side, rgba(255, 226, 154, .26), rgba(212, 166, 74, .10) 55%, transparent); animation: deriva2 14s ease-in-out infinite alternate; }
+.m3 { width: 60%; aspect-ratio: 2; left: 22%; bottom: 6%; background: radial-gradient(closest-side, rgba(168, 116, 26, .30), transparent); animation: deriva1 17s ease-in-out infinite alternate-reverse; }
+@keyframes deriva1 { from { transform: translate(-6%, -4%) scale(1); } to { transform: translate(8%, 6%) scale(1.15); } }
+@keyframes deriva2 { from { transform: translate(5%, 4%) scale(1.1); } to { transform: translate(-8%, -6%) scale(.95); } }
 .lienzo { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 .lienzo--frente { z-index: 3; }
 .haz {

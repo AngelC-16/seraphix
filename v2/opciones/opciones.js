@@ -308,6 +308,24 @@
         };
       },
     },
+    {
+      nombre: "Luz + oro (mezcla)",
+      desc: "La 3 con un eco de la 5: el haz de luz enciende el logo y detrás queda un resplandor de oro que respira despacio. Solo CSS, sin WebGL: ligera en cualquier celular.",
+      D: 3600,
+      montar({ esc, marca }) {
+        const aura = document.createElement("div");
+        aura.className = "aura";
+        aura.setAttribute("aria-hidden", "true");
+        aura.innerHTML = '<span class="mancha m1"></span><span class="mancha m2"></span><span class="mancha m3"></span>';
+        esc.prepend(aura);
+        const luz = OPS[2].montar({ esc, marca });
+        return (t) => {
+          luz(t);
+          // sube con el haz, llega al máximo cuando el logo se enciende y se asienta suave
+          aura.style.opacity = .95 * eout(seg(t, 300, 2200)) - .4 * eio(seg(t, 2400, 3500));
+        };
+      },
+    },
   ];
 
   // ---------- motor ----------
@@ -350,7 +368,7 @@
     b.addEventListener("click", () => { history.replaceState(null, "", "#" + (i + 1)); montar(i); });
     b.addEventListener("keydown", (e) => {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-      const j = (i + (e.key === "ArrowRight" ? 1 : 4)) % 5;
+      const j = (i + (e.key === "ArrowRight" ? 1 : OPS.length - 1)) % OPS.length;
       tabs[j].focus(); tabs[j].click();
     });
   });
@@ -367,10 +385,10 @@
   let rz;
   addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => montar(actual), 250); });
 
-  addEventListener("hashchange", () => { const j = clamp((parseInt(location.hash.slice(1), 10) || 1) - 1, 0, 4); if (j !== actual) montar(j); });
+  addEventListener("hashchange", () => { const j = clamp((parseInt(location.hash.slice(1), 10) || 1) - 1, 0, OPS.length - 1); if (j !== actual) montar(j); });
   // Para pruebas: congelar en un instante concreto.
   window.__congelar = (t) => { cancelAnimationFrame(raf); transcurrido = D; pintar(Math.min(t, D)); };
 
-  const ini = clamp((parseInt(location.hash.slice(1), 10) || 1) - 1, 0, 4);
+  const ini = clamp((parseInt(location.hash.slice(1), 10) || 1) - 1, 0, OPS.length - 1);
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => montar(ini));
 })();
